@@ -4,30 +4,35 @@
     "parameters": {
         "existingStorageAccountResourceGroupName": {
             "type": "string",
+            "defaultValue": "hr-analytics-qa",
             "metadata": {
                 "description": "Resource group for existing storage account"
             }
         },
         "existingStorageAccountName": {
             "type": "string",
+            "defaultValue": "hraapeuwqasta01",
             "metadata": {
                 "description": "Name of existing storage account"
             }
         },
         "existingFileShareName": {
             "type": "string",
+            "defaultValue": "hra-s4u-compensation",
             "metadata": {
                 "description": "Name of existing file share to be mounted"
             }
         },
         "sftpUser": {
             "type": "string",
+            "defaultValue": "hrasftp",
             "metadata": {
                 "description": "Username to use for SFTP access"
             }
         },
         "sftpPassword": {
             "type": "securestring",
+            "defaultValue": ")>.N9mL#=#ytBBW",
             "metadata": {
                 "description": "Password to use for SFTP access"
             }
@@ -41,6 +46,7 @@
         },
         "dnsNameLabel": {
             "type": "string",
+            "defaultValue": "HRA-sFTP-QA",
             "metadata": {
                 "description": "DNS Label used to set FQDN"
             }
@@ -48,7 +54,7 @@
     },
     "variables": {
         "sftpContainerName": "sftp",
-        "sftpContainerGroupName": "sftp-group",
+        "sftpContainerGroupName": "hraapeuwqaaci01",
         "sftpContainerImage": "atmoz/sftp:latest",
         "sftpEnvVariable": "[concat(parameters('sftpUser'), ':', parameters('sftpPassword'), ':1001')]",
         "storageAccountId": "[resourceId(parameters('existingStorageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('existingStorageAccountName'))]"
