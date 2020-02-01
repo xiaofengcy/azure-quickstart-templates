@@ -2,6 +2,34 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "vnetName": {
+            "type": "string",
+            "defaultValue": "aci-vnet",
+            "metadata": {
+                "description": "VNet name"
+            }
+        },
+        "vnetAddressPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16",
+            "metadata": {
+                "description": "Address prefix"
+            }
+        },
+        "subnetAddressPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+                "description": "Subnet prefix"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "defaultValue": "aci-subnet",
+            "metadata": {
+                "description": "Subnet name"
+            }
+        },
         "existingStorageAccountResourceGroupName": {
             "type": "string",
             "defaultValue": "hr-analytics-qa",
@@ -53,6 +81,9 @@
         }
     },
     "variables": {
+        "networkProfileName": "aci-networkProfile",
+        "interfaceConfigName": "eth0",
+        "interfaceIpConfig": "ipconfigprofile1",
         "sftpContainerName": "sftp",
         "sftpContainerGroupName": "hraapeuwqaaci01",
         "sftpContainerImage": "atmoz/sftp:latest",
@@ -60,6 +91,63 @@
         "storageAccountId": "[resourceId(parameters('existingStorageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('existingStorageAccountName'))]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('vnetName')]",
+            "apiVersion": "2018-07-01",
+            "location": "[parameters('location')]",
+            "properties": {
+              "addressSpace": {
+                "addressPrefixes": [
+                  "[parameters('vnetAddressPrefix')]"
+                ]
+              },
+              "subnets": [
+                {
+                  "name": "[parameters('subnetName')]",
+                  "properties": {
+                    "addressPrefix": "[parameters('subnetAddressPrefix')]",
+                    "delegations": [
+                      {
+                        "name": "DelegationService",
+                        "properties": {
+                          "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "[variables('networkProfileName')]",
+            "type": "Microsoft.Network/networkProfiles",
+            "apiVersion": "2018-07-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+              "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            ],
+            "properties": {
+              "containerNetworkInterfaceConfigurations": [
+                {
+                  "name": "[variables('interfaceConfigName')]",
+                  "properties": {
+                    "ipConfigurations": [
+                      {
+                        "name": "[variables('interfaceIpConfig')]",
+                        "properties": {
+                          "subnet": {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
         {
             "type": "Microsoft.Resources/deployments",
             "name": "pid-18f281fe-d1e1-502c-8b87-d945383dc75b",
