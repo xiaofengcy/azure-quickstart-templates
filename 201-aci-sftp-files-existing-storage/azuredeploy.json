@@ -166,6 +166,9 @@
             "name": "[variables('sftpContainerGroupName')]",
             "apiVersion": "2018-10-01",
             "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkProfiles', variables('networkProfileName'))]"
+              ],
             "properties": {
                 "containers": [
                     {
@@ -200,16 +203,9 @@
                     }
                 ],
                 "osType": "Linux",
-                "ipAddress": {
-                    "type": "Public",
-                    "dnsNameLabel": "[parameters('dnsNameLabel')]",
-                    "ports": [
-                        {
-                            "protocol": "Tcp",
-                            "port": 22
-                        }
-                    ]
-                },
+                "networkProfile": {
+                    "Id": "[resourceId('Microsoft.Network/networkProfiles', variables('networkProfileName'))]"
+                  },
                 "restartPolicy": "OnFailure",
                 "volumes": [
                     {
